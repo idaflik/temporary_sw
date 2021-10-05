@@ -1,0 +1,101 @@
+<head>
+
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v4.js"></script>
+<title>3 - use of force</title>
+</head>
+
+<body>
+  <link href="stylesheet.css" rel="stylesheet" type="text/css">
+  <div id="heatmap"></div>
+
+  <script>
+
+    var toolTip = d3.select("body").append("div").attr("class", "tooltip");
+
+    var margin = {top: 20, right: 30, bottom: 50, left: 100},
+    width = window.innerWidth - margin.left - margin.right,
+    height2 = window.innerHeight - margin.top - margin.bottom;
+
+    //Read the data
+    d3.csv("https://raw.githubusercontent.com/idaflik/data/master/deportation_operations.csv", function(data) {
+
+      data.forEach(function(d){
+        d.year = +d.year;
+      });
+
+      // group the data: I want to draw one line per group
+      var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
+        .key(function(d) { return d.member_state;})
+        .entries(data);
+
+
+  // heatmap
+
+      // append the svg object to the body of the page
+    var svg_heatmap = d3.select("#heatmap")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height2 + margin.top + margin.bottom)
+    .append("g")
+      .attr("width", width)
+      .attr("height", height2)
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    // Labels of row and columns
+    // var myGroups = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    var myGroups = d3.map(data, function(d){return(d.year)}).keys()
+    console.log(myGroups)
+
+    // var myVars = ["v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10"]
+    var myVars = d3.map(data, function(d){return(d.member_state)}).keys()
+    console.log(myVars)
+
+    // Build X scales and axis:
+    var x_heatmap = d3.scaleBand()
+      .range([ 0, width ])
+      .domain(myGroups)
+      .padding(0.01);
+    svg_heatmap.append("g")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(d3.axisBottom(x_heatmap))
+
+    // Build y scales and axis:
+    var y_heatmap = d3.scaleBand()
+      .range([ height2, 0 ])
+      .domain(myVars)
+      .padding(0.01);
+    svg_heatmap.append("g")
+      .call(d3.axisLeft(y_heatmap));
+
+    // Build color scale
+    var myColor = d3.scaleLinear()
+      .range(["#efe7e1", "#994660"])
+      .domain([0,d3.max(data, function(d) { return +d.use_of_force; })])
+
+      // add the squares
+      svg_heatmap.selectAll()
+        .data(data, function(d) {return d.year+':'+d.member_state;})
+        .enter()
+        .append("rect")
+          .attr("x", function(d) { return x_heatmap(d.year) })
+          .attr("y", function(d) { return y_heatmap(d.member_state) })
+          .attr("width", x_heatmap.bandwidth() )
+          .attr("height", y_heatmap.bandwidth() )
+          .style("fill", function(d) { return myColor(d.use_of_force)} )
+          .on("mousemove", function(d){
+              toolTip
+                .style("left", d3.event.pageX + "px")
+                .style("top", d3.event.pageY + "px")
+                .style("display", "inline-block")
+                .html("Average escorts " + "<br>" +
+                "per deported person: " + "<br>" +
+                d3.format(".2f")(d.use_of_force))
+          })
+          .on("mouseout", function(d){ toolTip.style("display", "none");});
+
+        })
+
+  </script>
+</body>
