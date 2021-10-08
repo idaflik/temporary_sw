@@ -29,19 +29,19 @@ var EUformat = d3.formatDefaultLocale({
         "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     })
 
-// var menu = d3.select("#type")
+// var menu = d3.select("#KEY")
 
-d3.csv("https://raw.githubusercontent.com/idaflik/data/master/frontex_expenses.csv").then(d => chart(d))
+d3.csv("https://raw.githubusercontent.com/idaflik/data/master/sw/FX_CONTRIB_YEARS_MSNAME.csv").then(d => chart(d))
 
 function chart(csv) {
 
 	var keys = csv.columns.slice(2);
 
-	var type   = [...new Set(csv.map(d => d.type))]
-	var dates = [...new Set(csv.map(d => d.date))]
+	var KEY   = [...new Set(csv.map(d => d.KEY))]
+	var YEARs = [...new Set(csv.map(d => d.YEAR))]
 
-	// var options = d3.select("#type").selectAll("option")
-	// 	.data(type)
+	// var options = d3.select("#KEY").selectAll("option")
+	// 	.data(KEY)
 	// .enter().append("option")
 	// 	.text(d => d)
 
@@ -87,7 +87,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 
 	function update(input, speed) {
 
-		var data = csv.filter(f => f.type == input)
+		var data = csv.filter(f => f.KEY == input)
 
 		data.forEach(function(d) {
 			d.total = d3.sum(keys, k => +d[k])
@@ -100,7 +100,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 		svg.selectAll(".y-axis").transition().duration(speed)
 			.call(d3.axisLeft(y).tickFormat(EUformat.format("$,.0f")))
 
-    x.domain(data.map(d => d.date));
+    x.domain(data.map(d => d.YEAR));
     svg.selectAll(".x-axis").transition().duration(speed)
       .call(d3.axisBottom(x))
 
@@ -114,7 +114,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 			.attr("fill", d => z(d.key));
 
 		var bars = svg.selectAll("g.layer").selectAll("rect")
-			.data(d => d, e => e.data.date);
+			.data(d => d, e => e.data.YEAR);
 
 		bars.exit().remove()
 
@@ -122,7 +122,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
       .attr("width", x.bandwidth())
       .merge(bars)
     .transition().duration(speed)
-      .attr("x", d => x(d.data.date))
+      .attr("x", d => x(d.data.YEAR))
       .attr("y", d => (y(d[1])))
       .attr("height", d => y(d[0]) - y(d[1]))
 
@@ -148,7 +148,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
             .style("display", "inline-block")
             .html("<div class = 'tooltip-title'>" +
               "Frontex contributions"+ "<br>"+
-            "in " + d.data.date +" in total:" + "<br>" +
+            "in " + d.data.YEAR +" in total:" + "<br>" +
             "<strong>" +EUformat.format("$,.0f")(d.data.total)+"</strong>" +
             "</div>"+
             "<div class = 'tooltip-content'>" +

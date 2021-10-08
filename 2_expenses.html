@@ -3,7 +3,7 @@
   <meta charset="utf-8">
   <title>2 - expenses</title>
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" charset="utf-8"></script>
-   <!--<script type="text/javascript" src="test_template/jquery.tipsy.js"></script> -->
+   <!--<script KEY="text/javascript" src="test_template/jquery.tipsy.js"></script> -->
 
 </head>
 
@@ -49,12 +49,12 @@ var margin = {top: 20, right: 160, bottom: 60, left: 100},
 var toolTip = d3.select("body").append("div").attr("class", "tooltip");
 
 // color array
-var colorscale = ['#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#715678'];
+var colorscale = ['#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6',  '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#bac5d6', '#715678'];
 
 //color function pulls from array of colors stored in color.js
 var color = d3.scale.ordinal().range(colorscale);
 
-//define your year format here, first for the x scale, then if the date is displayed in tooltips
+//define your year format here, first for the x scale, then if the YEAR is displayed in tooltips
 var parseDate = d3.time.format("%Y").parse;
 var formatDate = d3.time.format("%Y");
 
@@ -86,12 +86,12 @@ svg.append("svg:rect")
 //     .on("change", change);
 
 //suck in the data, store it in a value called formatted, run the redraw function
-d3.csv("https://raw.githubusercontent.com/idaflik/data/master/linechart_test.csv", function(data) {
+d3.csv("https://raw.githubusercontent.com/idaflik/data/master/sw/FX_CONTRIB_PP_YEARS_MSNAME.csv", function(data) {
 									formatted = data;
 
                   // create data nests based on economic indicator (series)
                   nested = d3.nest()
-                  .key(function(d) { return d.type; })
+                  .key(function(d) { return d.KEY; })
                   .map(formatted)
 
                   var options = d3.select("#series").selectAll("option")
@@ -118,7 +118,7 @@ function redraw() {
 
     // get value from menu selection
     // the option values are set in HTML and correspond
-    //to the [type] value we used to nest the data
+    //to the [KEY] value we used to nest the data
 
     //disabled because only showing one variable for now
     // var series = menu.property("value");
@@ -127,13 +127,13 @@ function redraw() {
     // only retrieve data from the selected series, using the nest we just created
     var data = nested[series]
 
-    // for object constancy we will need to set "keys", one for each type of data (column name) exclude all others.
-	color.domain(d3.keys(data[0]).filter(function(key) { return (key !== "date" && key !== "type"); }));
+    // for object constancy we will need to set "keys", one for each KEY of data (column name) exclude all others.
+	color.domain(d3.keys(data[0]).filter(function(key) { return (key !== "YEAR" && key !== "KEY"); }));
 
 	var linedata = color.domain().map(function(name) {
     				return {name: name,
 					        values: data.map(function(d) {
-							return {name:name, date: parseDate(d.date), value: parseFloat(d[name],10)};
+							return {name:name, YEAR: parseDate(d.YEAR), value: parseFloat(d[name],10)};
       						})
     				};
   	});
@@ -145,8 +145,8 @@ function redraw() {
 	//setup the x and y scales
 	var x = d3.time.scale()
 		.domain([
-	    d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.date; }); }),
-	    d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.date; }); })
+	    d3.min(linedata, function(c) { return d3.min(c.values, function(v) { return v.YEAR; }); }),
+	    d3.max(linedata, function(c) { return d3.max(c.values, function(v) { return v.YEAR; }); })
       // new Date('2006-01-01T00:00:00.000Z'),
       // new Date('2020-01-01T00:00:00.000Z')
 		])
@@ -161,7 +161,7 @@ function redraw() {
 
 	//will draw the line
 	var line = d3.svg.line()
-    	.x(function(d) { return x(d.date); })
+    	.x(function(d) { return x(d.YEAR); })
 	    .y(function(d) { return y(d.value); });
 
 	//create and draw the x axis
@@ -240,7 +240,7 @@ function redraw() {
 		.enter()
 		.append("circle")
 			.attr("class","tipcircle")
-			.attr("cx", function(d,i){return x(d.date)})
+			.attr("cx", function(d,i){return x(d.YEAR)})
 			.attr("cy",function(d,i){return y(d.value)})
 			.attr("r",12)
 			.style('opacity', 1e-6)//1e-6
@@ -256,7 +256,7 @@ function redraw() {
               "</div>"+
               "<div class = 'tooltip-content'>" +
               d.name + "<br>"+
-              formatDate(d.date)+ "<br>"+
+              formatDate(d.YEAR)+ "<br>"+
               EUlocale.numberFormat("$,.2f")(d.value)+
               "</div>"
 
@@ -333,13 +333,13 @@ function redraw() {
 	  	// .attr ("title", maketip)
       // ida added code for normal tooltip
 	  	.attr("cy",function(d,i){return y(d.value)})
-	  	.attr("cx", function(d,i){return x(d.date)})
+	  	.attr("cx", function(d,i){return x(d.YEAR)})
       // .on("mousemove", function(d,e){
       //     toolTip
       //       .style("left", d3.event.pageX + "px")
       //       .style("top", d3.event.pageY + "px")
       //       .style("display", "inline-block")
-      //       .html(d.name + "<br>"+d.value +"<br>" + formatDate(d.date))
+      //       .html(d.name + "<br>"+d.value +"<br>" + formatYEAR(d.YEAR))
       // })
       // .on("mouseout", function(d,e){ toolTip.style("display", "none");});
 

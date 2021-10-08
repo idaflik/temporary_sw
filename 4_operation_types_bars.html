@@ -8,7 +8,7 @@
 
 <body>
 <link href="stylesheet.css" rel="stylesheet" type="text/css">
-<p>Select the series to display: <select id="variable"></select></p>
+<p>Select the series to display: <select id="KEY"></select></p>
 
 <svg id="chart"></svg>
 
@@ -29,19 +29,19 @@ var EUformat = d3.formatDefaultLocale({
         "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     })
 
-var menu = d3.select("#variable")
+var menu = d3.select("#KEY")
 
-d3.csv("https://raw.githubusercontent.com/idaflik/data/master/year_operation_types.csv").then(d => chart(d))
+d3.csv("https://raw.githubusercontent.com/idaflik/data/master/sw/OPTYPE_YEAR.csv").then(d => chart(d))
 
 function chart(csv) {
 
 	var keys = csv.columns.slice(2);
 
-	var variable   = [...new Set(csv.map(d => d.variable))]
-	var years = [...new Set(csv.map(d => d.year))]
+	var KEY   = [...new Set(csv.map(d => d.KEY))]
+	var YEARs = [...new Set(csv.map(d => d.YEAR))]
 
-	var options = d3.select("#variable").selectAll("option")
-		.data(variable)
+	var options = d3.select("#KEY").selectAll("option")
+		.data(KEY)
 	.enter().append("option")
 		.text(d => d)
 
@@ -88,11 +88,11 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 		.range(['#d5791f', '#80525c', '#8b8fab'])
 		.domain(keys);
 
-	update(d3.select("#variable").property("value"), 0)
+	update(d3.select("#KEY").property("value"), 0)
 
 	function update(input, speed) {
 
-		var data = csv.filter(f => f.variable == input)
+		var data = csv.filter(f => f.KEY == input)
 
 		data.forEach(function(d) {
 			d.total = d3.sum(keys, k => +d[k])
@@ -105,7 +105,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 		svg.selectAll(".y-axis").transition().duration(speed)
 			.call(d3.axisLeft(y))
 
-    x.domain(data.map(d => d.year));
+    x.domain(data.map(d => d.YEAR));
     svg.selectAll(".x-axis").transition().duration(speed)
       .call(d3.axisBottom(x))
 
@@ -119,7 +119,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 			.attr("fill", d => z(d.key));
 
 		var bars = svg.selectAll("g.layer").selectAll("rect")
-			.data(d => d, e => e.data.year);
+			.data(d => d, e => e.data.YEAR);
 
 		bars.exit().remove()
 
@@ -127,7 +127,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
       .attr("width", x.bandwidth())
       .merge(bars)
     .transition().duration(speed)
-      .attr("x", d => x(d.data.year))
+      .attr("x", d => x(d.data.YEAR))
       .attr("y", d => (y(d[1])))
       .attr("height", d => y(d[0]) - y(d[1]))
 
@@ -154,7 +154,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
             .html(
               "<div class = 'tooltip-title'>" +
               menu.property("value")+ "<br>" +
-              "in " + + d.data.year +
+              "in " + + d.data.YEAR +
               "</div>"+
             "<div class = 'tooltip-content'>" +
             subgroupName + "s:"+"<br>"+
@@ -178,7 +178,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
           })
 
 		var text = svg.selectAll(".text")
-			.data(data, d => d.year);
+			.data(data, d => d.YEAR);
 
 		text.exit().remove()
 
@@ -187,12 +187,12 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 			.attr("text-anchor", "middle")
 			.merge(text)
 		.transition().duration(speed)
-			.attr("x", d => x(d.year) + x.bandwidth() / 2)
+			.attr("x", d => x(d.YEAR) + x.bandwidth() / 2)
 			.attr("y", d => y(d.total)-5)
 			.text(d => d.total)
 	}
 
-	var select = d3.select("#variable")
+	var select = d3.select("#KEY")
 		.on("change", function() {
 			update(this.value, 750)
 		})
