@@ -8,9 +8,19 @@
 
 <body>
 <link href="stylesheet.css" rel="stylesheet" type="text/css">
-<p>Filter by destination (optional): <select id="DEST"></select></p>
+<div class="menu">
+  <p>Persons returned to <select id="DEST"></select></p>
+</div>
 
 <svg id="chart"></svg>
+
+<div class="caption">
+  <p> <a href="https://raw.githubusercontent.com/idaflik/data/master/sw/N_RETURNEES_YEARS_MSNAME.csv">Get the raw data behind this visualisation</a> | <a href="#">Link to full Deportation Union spreadsheet</a> </p>
+</div>
+<div class="caption">
+  <p>Number of deported persons by year and deporting EU member state. Bars are arranged by the total number of deportations across years (bottom bar is Germany, Germany has recieved the largest amount of contributions in the time period, second bar is Austria, Austria has recieved the second largest amount of contributions in the time period, a.s.o.)</p>
+</div>
+
 
 <script>
 
@@ -48,7 +58,7 @@ function chart(csv) {
 	var svg = d3.select("#chart"),
 		margin = {top: 20, left: 100, bottom: 0, right: 15},
 		width = window.innerWidth - margin.left - margin.right,
-		height = window.innerHeight - margin.top - margin.bottom - 100;
+		height = window.innerHeight - margin.top - margin.bottom - 200;
     // -100 height to leave space for the selector within iframe
 
 svg.attr("width", width + margin.left) // margin.right should stay empty
@@ -143,7 +153,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
             var height = parseFloat(d3.select(this).attr("height"))
 
             d3.select(this)
-            .attr("stroke","blue")
+            .attr("stroke","#333333")
             .attr("stroke-width",0.8)
             .attr("opacity", 1);
 
@@ -168,8 +178,8 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
            d3.select(".tooltip")
            .style("display", "none");
             d3.select(this)
-            .attr("stroke","pink")
-            .attr("stroke-width",0.2);
+            .attr("stroke","white")
+            .attr("stroke-width",0);
 
           })
 

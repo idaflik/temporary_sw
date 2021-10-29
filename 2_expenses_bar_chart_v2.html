@@ -1,16 +1,26 @@
 <!--https://bl.ocks.org/LemoNode/21d81ff82e80cbe4acbfee28ff060b11-->
 <html>
 <head>
-  <title>2 - frontex contributions by country</title>
+  <title>2 - contributions</title>
 <meta charset ="utf-8">
 <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
 <link href="stylesheet.css" rel="stylesheet" type="text/css">
-<!-- <p>Filter by destination (optional): <select id="type"></select></p> -->
+<div class="menu">
+  <p>Frontex contributions to <select id="MSNAME"></select></p>
+</div>
 
 <svg id="chart"></svg>
+
+<div class="caption">
+  <p> <a href="https://raw.githubusercontent.com/idaflik/data/master/sw/FX_CONTRIB_YEARS_MSNAME.csv">Get the raw data behind this visualisation</a> | <a href="#">Link to full Deportation Union spreadsheet</a> </p>
+</div>
+<div class="caption">
+  <p>Frontex contributions for return operations by year and EU member state. Bars are arranged by the total amount of money recieved across years (bottom bar is Germany, Germany has deported the largest number of people in the time period, second bar is Italy, Italy has deported the second largest number of people in the time period, a.s.o.)</p>
+</div>
+
 
 <script>
 
@@ -29,7 +39,7 @@ var EUformat = d3.formatDefaultLocale({
         "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     })
 
-// var menu = d3.select("#KEY")
+var menu = d3.select("#MSNAME")
 
 d3.csv("https://raw.githubusercontent.com/idaflik/data/master/sw/FX_CONTRIB_YEARS_MSNAME.csv").then(d => chart(d))
 
@@ -37,18 +47,18 @@ function chart(csv) {
 
 	var keys = csv.columns.slice(2);
 
-	var KEY   = [...new Set(csv.map(d => d.KEY))]
+	var MSNAMEs   = [...new Set(csv.map(d => d.MSNAME))]
 	var YEARs = [...new Set(csv.map(d => d.YEAR))]
 
-	// var options = d3.select("#KEY").selectAll("option")
-	// 	.data(KEY)
-	// .enter().append("option")
-	// 	.text(d => d)
+	var options = d3.select("#MSNAME").selectAll("option")
+		.data(MSNAMEs)
+	.enter().append("option")
+		.text(d => d)
 
 	var svg = d3.select("#chart"),
 		margin = {top: 20, left: 100, bottom: 0, right: 15},
 		width = window.innerWidth - margin.left - margin.right,
-		height = window.innerHeight - margin.top - margin.bottom - 30;
+		height = window.innerHeight - margin.top - margin.bottom - 200;
     // -100 height to leave space for the selector within iframe
 
 svg.attr("width", width + margin.left) // margin.right should stay empty
@@ -58,6 +68,11 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
     .append("div")
     .attr("class", "tooltip")
 
+	// var y = d3.scaleBand()
+	// 	.range([margin.top, height - margin.bottom])
+	// 	.padding(0.1)
+	// 	.paddingOuter(0.2)
+	// 	.paddingInner(0.2)
 
   var x = d3.scaleBand()
 		.range([margin.left, width - margin.right])
@@ -79,15 +94,15 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 		.attr("transform", `translate(0,${height -  margin.bottom})`)
 		.attr("class", "x-axis")
 
-	var z = d3.scaleOrdinal()
-		.range(['#715678', '#7a6989', '#827c9a', '#8b8fab', '#94a2bc', '#a1abba', '#b3aaa5', '#c6aa8f', '#d8a97a', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964'])
-		.domain(keys);
+    var z = d3.scaleOrdinal()
+  		.range(['#715678', '#7a6989', '#827c9a', '#8b8fab', '#94a2bc', '#a1abba', '#b3aaa5', '#c6aa8f', '#d8a97a', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964'])
+  		.domain(keys);
 
-	update("frontex_contribution", 0) // <- hier von hand die variable eingeben da menu disabled
+	update(d3.select("#MSNAME").property("value"), 0)
 
 	function update(input, speed) {
 
-		var data = csv.filter(f => f.KEY == input)
+		var data = csv.filter(f => f.MSNAME == input)
 
 		data.forEach(function(d) {
 			d.total = d3.sum(keys, k => +d[k])
@@ -100,7 +115,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 		svg.selectAll(".y-axis").transition().duration(speed)
 			.call(d3.axisLeft(y).tickFormat(EUformat.format("$,.0f")))
 
-    x.domain(data.map(d => d.YEAR));
+    x.domain([2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020]);
     svg.selectAll(".x-axis").transition().duration(speed)
       .call(d3.axisBottom(x))
 
@@ -120,6 +135,8 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 
     bars.enter().append("rect")
       .attr("width", x.bandwidth())
+      .attr("stroke","white")
+      .attr("stroke-width",0)
       .merge(bars)
     .transition().duration(speed)
       .attr("x", d => x(d.data.YEAR))
@@ -138,7 +155,7 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
             var height = parseFloat(d3.select(this).attr("height"))
 
             d3.select(this)
-            .attr("stroke","blue")
+            .attr("stroke","#333333")
             .attr("stroke-width",0.8)
             .attr("opacity", 1);
 
@@ -167,13 +184,17 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
            d3.select(".tooltip")
            .style("display", "none");
             d3.select(this)
-            .attr("stroke","pink")
-            .attr("stroke-width",0.2);
+            .attr("stroke","white")
+            .attr("stroke-width",0);
 
           })
 
-
 	}
+
+	var select = d3.select("#MSNAME")
+		.on("change", function() {
+			update(this.value, 750)
+		})
 
 }
 
