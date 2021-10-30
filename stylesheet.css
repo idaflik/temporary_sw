@@ -51,7 +51,8 @@ fill: #fff;
 	padding-top: 7px !important;
 }
 
-.tick > text {
+.tick > text,
+text.sankey_label {
   font-size: 0.85rem;
 }
 
