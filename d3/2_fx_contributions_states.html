@@ -1,20 +1,26 @@
 <!--https://bl.ocks.org/LemoNode/21d81ff82e80cbe4acbfee28ff060b11-->
 <html>
 <head>
-  <title>4 - types operations</title>
+  <title>2 - contributions</title>
 <meta charset ="utf-8">
 <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
 <link href="stylesheet.css" rel="stylesheet" type="text/css">
-<p>Select the series to display: <select id="KEY"></select></p>
+<div class="menu">
+  <p>Frontex contributions to <select id="MSNAME"></select></p>
+</div>
 
 <svg id="chart"></svg>
 
 <div class="caption">
-  <p> <a href="https://raw.githubusercontent.com/idaflik/data/master/sw/OPTYPE_YEAR.csv" target="_blank">Get the raw data behind this visualisation</a> | <a href="#" target="_blank">Link to full Deportation Union spreadsheet</a> </p>
+  <p> <a href="../clean_data/FX_CONTRIB_YEARS_MSNAME.csv" target="_blank">Get the raw data behind this visualisation</a> | <a href="#" target="_blank">Link to full Deportation Union spreadsheet</a> </p>
 </div>
+<div class="caption">
+  <p>Frontex contributions for return operations by year and EU member state. Bars are arranged by the total amount of money recieved across years (bottom bar is Germany, Germany has deported the largest number of people in the time period, second bar is Italy, Italy has deported the second largest number of people in the time period, a.s.o.)</p>
+</div>
+
 
 <script>
 
@@ -33,26 +39,26 @@ var EUformat = d3.formatDefaultLocale({
         "shortMonths": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     })
 
-var menu = d3.select("#KEY")
+var menu = d3.select("#MSNAME")
 
-d3.csv("https://raw.githubusercontent.com/idaflik/data/master/sw/OPTYPE_YEAR.csv").then(d => chart(d))
+d3.csv("../clean_data/FX_CONTRIB_YEARS_MSNAME.csv").then(d => chart(d))
 
 function chart(csv) {
 
 	var keys = csv.columns.slice(2);
 
-	var KEY   = [...new Set(csv.map(d => d.KEY))]
+	var MSNAMEs   = [...new Set(csv.map(d => d.MSNAME))]
 	var YEARs = [...new Set(csv.map(d => d.YEAR))]
 
-	var options = d3.select("#KEY").selectAll("option")
-		.data(KEY)
+	var options = d3.select("#MSNAME").selectAll("option")
+		.data(MSNAMEs)
 	.enter().append("option")
 		.text(d => d)
 
 	var svg = d3.select("#chart"),
 		margin = {top: 20, left: 100, bottom: 0, right: 15},
 		width = window.innerWidth - margin.left - margin.right,
-		height = window.innerHeight - margin.top - margin.bottom - 150;
+		height = window.innerHeight - margin.top - margin.bottom - 200;
     // -100 height to leave space for the selector within iframe
 
 svg.attr("width", width + margin.left) // margin.right should stay empty
@@ -88,15 +94,15 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 		.attr("transform", `translate(0,${height -  margin.bottom})`)
 		.attr("class", "x-axis")
 
-	var z = d3.scaleOrdinal()
-		.range(['#d5791f', '#80525c', '#8b8fab'])
-		.domain(keys);
+    var z = d3.scaleOrdinal()
+  		.range(['#715678', '#7a6989', '#827c9a', '#8b8fab', '#94a2bc', '#a1abba', '#b3aaa5', '#c6aa8f', '#d8a97a', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964', '#eaa964'])
+  		.domain(keys);
 
-	update(d3.select("#KEY").property("value"), 0)
+	update(d3.select("#MSNAME").property("value"), 0)
 
 	function update(input, speed) {
 
-		var data = csv.filter(f => f.KEY == input)
+		var data = csv.filter(f => f.MSNAME == input)
 
 		data.forEach(function(d) {
 			d.total = d3.sum(keys, k => +d[k])
@@ -107,9 +113,9 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 
     y.domain([d3.max(data, d => d.total), 0]).nice();
 		svg.selectAll(".y-axis").transition().duration(speed)
-			.call(d3.axisLeft(y))
+			.call(d3.axisLeft(y).tickFormat(EUformat.format("$,.0f")))
 
-    x.domain(data.map(d => d.YEAR));
+    x.domain([2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020]);
     svg.selectAll(".x-axis").transition().duration(speed)
       .call(d3.axisBottom(x))
 
@@ -129,6 +135,8 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 
     bars.enter().append("rect")
       .attr("width", x.bandwidth())
+      .attr("stroke","white")
+      .attr("stroke-width",0)
       .merge(bars)
     .transition().duration(speed)
       .attr("x", d => x(d.data.YEAR))
@@ -155,16 +163,16 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
             .style("left", d3.event.pageX + "px")
             .style("top", d3.event.pageY + "px")
             .style("display", "inline-block")
-            .html(
-              "<div class = 'tooltip-title'>" +
-              menu.property("value")+ "<br>" +
-              "in " + + d.data.YEAR +
-              "</div>"+
+            .html("<div class = 'tooltip-title'>" +
+              "Frontex contributions"+ "<br>"+
+            "in " + d.data.YEAR +" in total:" + "<br>" +
+            "<strong>" +EUformat.format("$,.0f")(d.data.total)+"</strong>" +
+            "</div>"+
             "<div class = 'tooltip-content'>" +
-            subgroupName + "s:"+"<br>"+
-            "<strong>" + delta + "</strong>" +
-            "</div>"
-          );
+            EUformat.format("$,.0f")(delta)+"<br>"+
+            "to " +"<strong>" +subgroupName + "</strong>" +
+
+            "</div>");
 
          })
          .on("mousemove", function(){
@@ -181,30 +189,13 @@ svg.attr("width", width + margin.left) // margin.right should stay empty
 
           })
 
-		var text = svg.selectAll(".text")
-			.data(data, d => d.YEAR);
-
-		text.exit().remove()
-
-		text.enter().append("text")
-			.attr("class", "text")
-			.attr("text-anchor", "middle")
-			.merge(text)
-		.transition().duration(speed)
-			.attr("x", d => x(d.YEAR) + x.bandwidth() / 2)
-			.attr("y", d => y(d.total)-5)
-			.text(d => d.total)
 	}
 
-	var select = d3.select("#KEY")
+	var select = d3.select("#MSNAME")
 		.on("change", function() {
 			update(this.value, 750)
 		})
 
-	var checkbox = d3.select("#sort")
-		.on("click", function() {
-			update(select.property("value"), 750)
-		})
 }
 
 </script>
