@@ -1,28 +1,36 @@
-ISSUES
---
+## Unresolved issues
 
-2016 number 49: returnees numbers inconsistent: total is smaller than returnees (1) and (2) added // on 2016-05-11 -> operation with returnees (2) specified but no destination (2)
+as of Dec 5th 2021
 
-2017 nr. 110: escorts (1), (2) and (3) exist but only destinations and returnees (1) and (2).
+`deportation-union-data.xlsx`:
 
-2015 row 4: returnees (3) has number, but total, (1) and (2) not, only destinations (1) and (2)
+- 2016 number 49: returnees numbers inconsistent: total is smaller than returnees (1) and (2) added // on 2016-05-11 -> operation with returnees (2) specified but no destination (2)
+- 2017 nr. 110: escorts (1), (2) and (3) exist but only destinations and returnees (1) and (2).
+- 2015 row 4: returnees (3) has number, but total, (1) and (2) not, only destinations (1) and (2)
 
-DOCUMENTATION
---
+# Repository contents
 
 ## `raw_data`
 
-### `deportation-union-data.xlsx` : Dataset from https://www.statewatch.org/deportation-union-rights-accountability-and-the-eu-s-push-to-increase-forced-removals/ **with small manual corrections** - so **don't replace with original file**, rather add data or corrections manually into this version.
+#### `deportation-union-data.xlsx` :
 
-### `frontex_docs_pdf`: Documents obtained from Frontex through Request.
+Dataset from https://www.statewatch.org/deportation-union-rights-accountability-and-the-eu-s-push-to-increase-forced-removals/ **with small manual corrections** - so **don't replace with original file**, rather add data or corrections manually into this version.
 
-### `frontex_docs_converted`: raw_data/frontex_docs_pdf/ files converted with an online converter.
+#### `frontex_docs_pdf`:
 
-### `country codes.xlsx`: List of needes country codes, iso2 codes and iso3 codes.
+Documents obtained from Frontex through Request.
+
+#### `frontex_docs_converted`:
+
+raw_data/frontex_docs_pdf/ files converted with an online converter.
+
+#### `country codes.xlsx`:
+
+List of needes country codes, iso2 codes and iso3 codes.
 
 ## `R_scripts`
 
-### `clean_data.R`
+#### `clean_data.R`
 
 takes
 `raw_data/deportation-union-data.xlsx` (years 2006 - 2018)
@@ -36,7 +44,7 @@ and generates:
 
 (for details, see below)
 
-### `export_data_for_web.R`
+#### `export_data_for_web.R`
 
 takes exported data from `clean_data.R` and generates files used by `d3` code for interactive visualisations:
 
@@ -61,7 +69,9 @@ takes exported data from `clean_data.R` and generates files used by `d3` code fo
 *DEST = destination*  
 
 
-### `OPERATIONS.csv`: all data aggregated by operation ID. FX_STAFF is only found in this file.
+#### `OPERATIONS.csv`:
+
+all data aggregated by operation ID. FX_STAFF is only found in this file.
 
 variables present in this data:
 
@@ -82,7 +92,9 @@ variables **not** present in this data:
 - "DATE" : because operations partly span across dates (multiple days). to find dates of the operation, check `OPERATIONS_BY_MS`
 - "ROID": before 2017 instead of RO-IDs there are different codes for each member state. therefore impossible to match one ROID to each operation; check `OPERATIONS_BY_MS` for Codes and ROIDs involved in each Operation (`ID`)
 
-### `OPERATIONS_BY_MS.csv`: all data (dis-)aggregated by operations (`ID`) and MS.
+#### `OPERATIONS_BY_MS.csv`:
+
+all data (dis-)aggregated by operations (`ID`) and MS.
 
 variables present in this data:
 
@@ -103,7 +115,9 @@ variables present in this data:
 - "ID": internally used ID, until 2018 "Number" from Spreadsheet, 2019 + 2020 ROID.
 - "ROWID": year and rownumber from spreadsheet (unique identifier for the combination of member state and operation)
 
-### `OPERATIONS_BY_DEST_MS.csv`: all data (dis-)aggregated by operations (`ID`) MS and destination.
+#### `OPERATIONS_BY_DEST_MS.csv`:
+
+all data (dis-)aggregated by operations (`ID`) MS and destination.
 
 variables present in this data:
 
@@ -117,23 +131,23 @@ variables present in this data:
 - "ROWID": year and rownumber from spreadsheet (unique identifier for the combination of member state and operation)
 - "ID": operation ID
 
-### `CONTRIB_PP_BY_DEST.csv`:
+#### `CONTRIB_PP_BY_DEST.csv`:
 
 Frontex contributions for return operations per person by destination. To avoid distorted data, only destinations with at least 10 deported people (across the time period) were included. The 25 destinations with highest Frontex contribution rates per person as well as the overall average are shown. Used by `3_fx_contributions_pp_dest.html`
 
-### `FX_CONTRIB_YEARS_MSNAME.csv`:
+#### `FX_CONTRIB_YEARS_MSNAME.csv`:
 
 Total of Frontex' financial contributions by years and recieving (member) states. Used by `2_fx_contributions_states.html`
 
-### `N_RETURNEES_MSNAME_DEST_ROUTES_MIN_15.csv`:
+#### `N_RETURNEES_MSNAME_DEST_ROUTES_MIN_15.csv`:
 
 Number of returned people in the time frame between 2006 and 2020 (limited to 15 countries that most people were deported from and to), used by `0_deportations_sankey.html`
 
-### `N_RETURNEES_YEARS_MSNAME.csv`:
+#### `N_RETURNEES_YEARS_MSNAME.csv`:
 
 Number of returned people per year, member state (deporting country) and destination. Used by `1_deportations_barchart.html`
 
-### `OPTYPE_YEAR.csv`:
+#### `OPTYPE_YEAR.csv`:
 
 Number of operations and deported people per year and operation type (NRO, JRO, CRO)
 
