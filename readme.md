@@ -1,12 +1,3 @@
-README
-
-current state of things: (8.10.2021)
-- this repo is not online
-- this repo is a filtered and more up-to-date version from `/deportation union visualisations/`
-- files from "output" folder are at online but in idaflik/data/sw
-- html files from / are online but in idaflik/sw-temporary
-
-plan: to make a github account from volunteer@statewatch
 
 input/frontex_docs_converted/
 are input/frontex_docs_pdf/
